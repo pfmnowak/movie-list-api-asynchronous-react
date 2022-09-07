@@ -21,15 +21,18 @@ function App() {
 
       const data = await response.json();
 
-      const transformedMovies = data.results.map((movie) => {
-        return {
-          id: movie.episode_id,
-          title: movie.title,
-          releaseDate: movie.release_date,
-          openingText: movie.opening_crawl,
-        };
-      });
-      setMovies(transformedMovies);
+      const loadedMovies = [];
+
+      for (const key in data) {
+        loadedMovies.push({
+          id: key,
+          title: data[key].title,
+          releaseDate: data[key].releaseDate,
+          openingText: data[key].openingText,
+        });
+      }
+
+      setMovies(loadedMovies);
     } catch (error) {
       setError(error.message);
     }
@@ -41,8 +44,22 @@ function App() {
     fetchMoviesHandler();
   }, [fetchMoviesHandler]);
 
-  const addMovieHandler = (movie) => {
-    console.log(movie);
+  const addMovieHandler = async (movie) => {
+    const response = await fetch(
+      "https://react-http-9fa8a-default-rtdb.europe-west1.firebasedatabase.app/movies.json",
+      {
+        method: "POST",
+        body: JSON.stringify(movie),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+    fetchMoviesHandler();
   };
 
   let content = <p>Found no movies.</p>;
